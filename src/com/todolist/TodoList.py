@@ -33,7 +33,7 @@ def todo_list():
         cursor = connection.cursor()
         cursor.execute(db_query)
         result = cursor.fetchall()
-    output = template('show_tasks.tpl', rows=result)
+    output = template('show_tasks.tpl', rows=result, status=show)
     return output
 
 
@@ -87,6 +87,13 @@ def task_as_json(number):
 @app.error(404)
 def error_404(error):
     return template('404.tpl')
+
+@app.route('/delete/<taskNumber:int>')
+def delete_task(taskNumber):
+    with sqlite3.connect('todo.db') as connection:
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM todo WHERE id = ?", (taskNumber,))
+    redirect('/')
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True, reloader=True)
